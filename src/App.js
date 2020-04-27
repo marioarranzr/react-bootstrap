@@ -1,44 +1,43 @@
-import React, { Component, Fragment } from 'react';
-import { Card, CardGroup, Button } from 'react-bootstrap'
+import React, { useState, useEffect } from 'react';
+import { Button, Card, CardGroup } from 'react-bootstrap'
 
 import './App.css';
 
-class App extends Component {
-  state = {
-    contacts: []
+const App = () => {
+  const [contacts, setContacts] = useState([]);
+
+  const fetchContacts = async () => {
+    try {
+      const response = await fetch('http://jsonplaceholder.typicode.com/users');
+      const data = await response.json();
+      setContacts(data);
+    } catch (err) {
+      console.error(err);
+    }
   }
 
-  componentDidMount() {
-    fetch('http://jsonplaceholder.typicode.com/users')
-      .then(res => res.json())
-      .then((data) => {
-        this.setState({ contacts: data })
-        console.log(this.state.contacts)
-      })
-      .catch(console.log)
-  }
+  useEffect(() => {
+    fetchContacts();
+  }, []);
 
-  render() {
-    return (
-      <Fragment>
-        <CardGroup>
-          {this.state.contacts.map((contact, idx) => (
-            <Card key={idx}>
-              <Card.Body>
-                <Card.Title>{ contact.name }</Card.Title>
-                <Card.Text>
-                  { contact.email }
-                </Card.Text>
-                <Button variant="warning" size="sm" > 
-                  <a href={ 'https://' + contact.website } target="_blank" rel="noopener noreferrer">{contact.website}</a>
-                </Button>
-              </Card.Body>
-            </Card>
-          ))}
-        </CardGroup>
-      </Fragment>
-    )
-  }
+  return (
+    <CardGroup>
+      {contacts.map(contact => {
+        const { name, email, website } = contact;
+        return (
+          <Card key={`contact-${email}`}>
+            <Card.Body>
+              <Card.Title>{name}</Card.Title>
+              <Card.Text>{email}</Card.Text>
+              <Button variant="warning" size="sm">
+                <a href={`https://${website}`} target="_blank" rel="noopener noreferrer">{website}</a>
+              </Button>
+            </Card.Body>
+          </Card>
+        )
+      })}
+    </CardGroup>
+  );
 }
 
 export default App;
